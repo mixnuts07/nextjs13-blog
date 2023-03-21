@@ -1,15 +1,29 @@
-import React from "react";
+import styles from "../../page.module.css";
+import { GetJsonPlaceholder, getPost } from "@/src/lib/GetJsonPlaceholder";
 
 type paramsType = {
   id: string;
 };
+
 // https://beta.nextjs.org/docs/api-reference/generate-static-params
 export async function generateStaticParams(): Promise<paramsType[]> {
-  return [{ id: "1" }, { id: "2" }];
+  const posts = await GetJsonPlaceholder();
+  return posts.map((post) => ({ id: post.id.toString() }));
 }
 
-function page({ params }: { params: paramsType }) {
-  return <div>blog articles:: {params.id}</div>;
+async function page({ params }: { params: paramsType }) {
+  const { title, body } = await getPost(params.id);
+  const bodys = body.split("\n");
+  return (
+    <main className={styles.main}>
+      <h1 className={styles.title}>{title}</h1>
+      <div className={styles.article}>
+        {bodys.map((body, index) => (
+          <p key={index}>{body}</p>
+        ))}
+      </div>
+    </main>
+  );
 }
 
 export default page;
